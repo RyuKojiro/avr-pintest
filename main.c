@@ -112,17 +112,17 @@ void announcePin(pinset set, int pin) {
 int checkPin(pinset set, int pin) {
 	switch (set) {
 		case PINSETA:
-			return PINA & (1 << pin);
+			return PINA & pin;
 		case PINSETB:
-			return PINB & (1 << pin);
+			return PINB & pin;
 		case PINSETC:
-			return PINC & (1 << pin);
+			return PINC & pin;
 		case PINSETD:
-			return PIND & (1 << pin);
+			return PIND & pin;
 		case PINSETE:
-			return PINE & (1 << pin);
+			return PINE & pin;
 		case PINSETF:
-			return PINF & (1 << pin);
+			return PINF & pin;
 		default:
 			return 0;
 	}
