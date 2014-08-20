@@ -5,6 +5,9 @@
 
 #include "usb_serial.h"
 
+#define STRING_ANNOUNCE_PREAMBLE	"Testing pin "
+#define STRING_ANNOUNCE_POSTSCRIPT	" ... "
+
 #define BAUD_RATE	1200
 
 #define CPU_PRESCALE(n) (CLKPR = 0x80, CLKPR = (n))
@@ -43,13 +46,73 @@ void setupPin(pinset set, int pin) {
 			DDRA |= pin;
 			PORTA |= pin;
 		} break;
-  default:
+		case PINSETB: {
+			DDRB |= pin;
+			PORTB |= pin;
+		} break;
+		case PINSETC: {
+			DDRC |= pin;
+			PORTC |= pin;
+		} break;
+		case PINSETD: {
+			DDRD |= pin;
+			PORTD |= pin;
+		} break;
+		case PINSETE: {
+			DDRE |= pin;
+			PORTE |= pin;
+		} break;
+		case PINSETF: {
+			DDRF |= pin;
+			PORTF |= pin;
+		} break;
+	default:
 			break;
 	}
 }
 
+char charForPinset(pinset set) {
+	switch (set) {
+		case PINSETA:
+			return 'A';
+		case PINSETB:
+			return 'B';
+		case PINSETC:
+			return 'C';
+		case PINSETD:
+			return 'D';
+		case PINSETE:
+			return 'E';
+		case PINSETF:
+			return 'F';
+		default:
+			return '?';
+	}
+}
+
+char charForPinMask(int pin) {
+	for (int i = 0; i < 8; i++) {
+		if (pin == (1 << i)) {
+			return '0' + i;
+		}
+	}
+	return '?';
+}
+
+void printPin(pinset set, int pin) {
+	usb_serial_putchar(charForPinset(set));
+	usb_serial_putchar(charForPinMask(pin));
+}
+
+void announcePin(pinset set, int pin) {
+	usb_serial_write((const uint8_t *)STRING_ANNOUNCE_PREAMBLE, sizeof(STRING_ANNOUNCE_PREAMBLE));
+	printPin(set, pin);
+	usb_serial_write((const uint8_t *)STRING_ANNOUNCE_POSTSCRIPT, sizeof(STRING_ANNOUNCE_POSTSCRIPT));
+}
+
 void testPin(pinset set, int pin) {
 	setupPin(set, pin);
+	announcePin(set, pin);
 }
 
 int main(void)
