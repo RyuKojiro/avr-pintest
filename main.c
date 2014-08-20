@@ -70,22 +70,10 @@ void setupPin(pinset set, int pin) {
 }
 
 char charForPinset(pinset set) {
-	switch (set) {
-		case PINSETA:
-			return 'A';
-		case PINSETB:
-			return 'B';
-		case PINSETC:
-			return 'C';
-		case PINSETD:
-			return 'D';
-		case PINSETE:
-			return 'E';
-		case PINSETF:
-			return 'F';
-		default:
-			return '?';
+	if (set >= 0 && set <= PINSET_SENTINEL) {
+		return 'A' + set;
 	}
+	return '?';
 }
 
 char charForPinMask(int pin) {
