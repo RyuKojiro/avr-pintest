@@ -8,17 +8,19 @@
 #define STRING_ANNOUNCE_PREAMBLE	"Testing pin "
 #define STRING_ANNOUNCE_POSTSCRIPT	"... "
 
+#define PINS_PER_SET	8
+
 #define CPU_PRESCALE(n) (CLKPR = 0x80, CLKPR = (n))
 #define NULL (void *)0
 
 typedef enum {
-	PINSETA = 0,
-	PINSETB = 1,
-	PINSETC = 2,
-	PINSETD = 3,
-	PINSETE = 4,
-	PINSETF = 5,
-	PINSET_SENTINEL = 6
+	PINSETA,
+	PINSETB,
+	PINSETC,
+	PINSETD,
+	PINSETE,
+	PINSETF,
+	PINSET_SENTINEL
 } pinset;
 
 void setupPin(pinset set, int pin) {
@@ -77,7 +79,7 @@ char charForPinset(pinset set) {
 }
 
 char charForPinMask(int pin) {
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < PINS_PER_SET; i++) {
 		if (pin == (1 << i)) {
 			return '0' + i;
 		}
@@ -123,7 +125,7 @@ void testPin(pinset set, int pin) {
 	
 	// test each other pin for shorts, and print the ones that connect
 	for (pinset tSet = 0; tSet < PINSET_SENTINEL; tSet++) {
-		for (int tPin = 0; tPin < 8; tPin++) {
+		for (int tPin = 0; tPin < PINS_PER_SET; tPin++) {
 			if (checkPin(tSet, 1 << tPin)) {
 				printPin(tSet, 1 << tPin);
 			}
@@ -146,8 +148,8 @@ int main(void)
 	while (1) {
 		// Wait for the USB serial connection, then cue the pintest
 		if (usb_serial_available()) {
-			for (int set = PINSETA; set < PINSET_SENTINEL; set++) {
-				for (int pin = 0; pin < 8; pin++) {
+			for (int set = 0; set < PINSET_SENTINEL; set++) {
+				for (int pin = 0; pin < PINS_PER_SET; pin++) {
 					testPin(set, 1 << pin);
 				}
 			}
