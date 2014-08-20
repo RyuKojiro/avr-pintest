@@ -135,13 +135,14 @@ void testPin(pinset set, int pin) {
 	
 	// test each other pin for shorts, and print the ones that connect
 	for (pinset tSet = 0; tSet < PINSET_SENTINEL; tSet++) {
-		for (int tPin = 0; tSet < 8; tSet++) {
-			if (checkPin(tSet, tPin)) {
-				printPin(tSet, tPin);
+		for (int tPin = 0; tPin < 8; tPin++) {
+			if (checkPin(tSet, 1 << tPin)) {
+				printPin(tSet, 1 << tPin);
 			}
 		}
 	}
 	
+	usb_serial_putchar('\r');
 	usb_serial_putchar('\n');
 }
 
@@ -158,10 +159,11 @@ int main(void)
 		// Wait for the USB serial connection, then cue the pintest
 		if (usb_serial_available()) {
 			for (int set = PINSETA; set < PINSET_SENTINEL; set++) {
-				for (int pin = 1; pin < 0xff; pin <<= 1) {
-					testPin(set, pin);
+				for (int pin = 0; pin < 8; pin++) {
+					testPin(set, 1 << pin);
 				}
 			}
+			break;
 		}
 	}
 }
