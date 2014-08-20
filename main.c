@@ -6,9 +6,7 @@
 #include "usb_serial.h"
 
 #define STRING_ANNOUNCE_PREAMBLE	"Testing pin "
-#define STRING_ANNOUNCE_POSTSCRIPT	" ... "
-
-#define BAUD_RATE	1200
+#define STRING_ANNOUNCE_POSTSCRIPT	"... "
 
 #define CPU_PRESCALE(n) (CLKPR = 0x80, CLKPR = (n))
 #define NULL (void *)0
@@ -102,6 +100,7 @@ char charForPinMask(int pin) {
 void printPin(pinset set, int pin) {
 	usb_serial_putchar(charForPinset(set));
 	usb_serial_putchar(charForPinMask(pin));
+	usb_serial_putchar(' ');
 }
 
 void announcePin(pinset set, int pin) {
@@ -110,9 +109,40 @@ void announcePin(pinset set, int pin) {
 	usb_serial_write((const uint8_t *)STRING_ANNOUNCE_POSTSCRIPT, sizeof(STRING_ANNOUNCE_POSTSCRIPT));
 }
 
+int checkPin(pinset set, int pin) {
+	switch (set) {
+		case PINSETA:
+			return PINA & (1 << pin);
+		case PINSETB:
+			return PINB & (1 << pin);
+		case PINSETC:
+			return PINC & (1 << pin);
+		case PINSETD:
+			return PIND & (1 << pin);
+		case PINSETE:
+			return PINE & (1 << pin);
+		case PINSETF:
+			return PINF & (1 << pin);
+		default:
+			return 0;
+	}
+	return 0;
+}
+
 void testPin(pinset set, int pin) {
 	setupPin(set, pin);
 	announcePin(set, pin);
+	
+	// test each other pin for shorts, and print the ones that connect
+	for (pinset tSet = 0; tSet < PINSET_SENTINEL; tSet++) {
+		for (int tPin = 0; tSet < 8; tSet++) {
+			if (checkPin(tSet, tPin)) {
+				printPin(tSet, tPin);
+			}
+		}
+	}
+	
+	usb_serial_putchar('\n');
 }
 
 int main(void)
